@@ -4,7 +4,7 @@ import * as schema from '@repe/db/schema';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 
-const isProd = env.NODE_ENV === 'production';
+const isHttps = env.BETTER_AUTH_URL.startsWith('https://');
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -41,10 +41,10 @@ export const auth = betterAuth({
   },
   trustedOrigins: [env.CORS_ORIGIN],
   advanced: {
-    useSecureCookies: isProd,
+    useSecureCookies: isHttps,
     defaultCookieAttributes: {
-      sameSite: isProd ? 'none' : 'lax',
-      secure: isProd,
+      sameSite: isHttps ? 'none' : 'lax',
+      secure: isHttps,
       httpOnly: true,
     },
   },
