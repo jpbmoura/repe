@@ -4,7 +4,7 @@ buildCommand = "pnpm install --frozen-lockfile"
 watchPatterns = ["apps/api/**", "packages/db/**", "packages/shared/**"]
 
 [deploy]
-startCommand = "pnpm --filter @repe/api start"
+startCommand = "node apps/api/start.mjs"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
