@@ -47,7 +47,7 @@ function AlunosPage() {
   }, [alunosQuery.data, filtro]);
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-28 pt-6">
+    <main className="pb-nav mx-auto max-w-2xl px-4 pt-6">
       <header className="mb-6 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-text-secondary text-sm">{saudacao()},</p>
@@ -109,7 +109,11 @@ function AlunosPage() {
       <button
         type="button"
         onClick={() => setDialogOpen(true)}
-        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-95 fixed bottom-20 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full shadow-lg shadow-black/40 transition"
+        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-95 fixed z-30 flex h-14 w-14 items-center justify-center rounded-full shadow-lg shadow-black/40 transition"
+        style={{
+          bottom: 'calc(env(safe-area-inset-bottom) + 5rem)',
+          right: 'calc(env(safe-area-inset-right) + 1rem)',
+        }}
         aria-label="Criar aluno"
       >
         <Plus size={24} strokeWidth={2.5} />

@@ -73,7 +73,7 @@ function AlunoDetalhePage() {
   const cadastrado = Boolean(aluno.userId);
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-28 pt-4">
+    <main className="pb-nav mx-auto max-w-2xl px-4 pt-4">
       <Link
         to="/alunos"
         className="text-text-secondary hover:text-text-primary mb-3 inline-flex items-center gap-1 text-sm"

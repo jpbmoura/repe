@@ -9,7 +9,7 @@ function MetricasPage() {
   const { user } = Route.useRouteContext();
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 pb-28">
+    <main className="pb-nav mx-auto max-w-2xl px-4 pt-8">
       <header className="mb-8">
         <h1 className="text-2xl font-semibold">Métricas</h1>
         <p className="text-text-secondary text-sm">

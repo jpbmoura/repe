@@ -21,7 +21,13 @@ export function ensureSession() {
 }
 
 export function invalidateSession() {
-  return queryClient.invalidateQueries({ queryKey: sessionKey });
+  // Removemos do cache (em vez de só invalidar) porque `ensureQueryData`
+  // — usado no `beforeLoad` — retorna cache stale sem refetch. Isso fazia
+  // o login aparentar travar no iOS: signIn ok, navigate ok, mas o
+  // `ensureQueryData` devolvia o `null` do cache anterior (deslogado),
+  // redirecionando de volta pro /login. Removendo, o próximo
+  // `ensureQueryData` força fetch fresh.
+  queryClient.removeQueries({ queryKey: sessionKey });
 }
 
 export function clearSession() {

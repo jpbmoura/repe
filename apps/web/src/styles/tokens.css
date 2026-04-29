@@ -45,9 +45,22 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  html, body {
+    box-sizing: border-box;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
   body {
     min-height: 100vh;
     min-height: 100dvh;
+    /* Safe areas — status bar / notch / lateral notch em landscape.
+       Não aplicamos padding-bottom aqui: a bottom nav fixa cuida do safe-area-inset-bottom. */
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   button {
@@ -66,6 +79,25 @@
   .font-num {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Altura mínima do viewport descontando safe-areas (top + bottom).
+     Use em telas standalone (login, cadastro) que centralizam vertical. */
+  .min-h-safe {
+    min-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+    );
+  }
+
+  /* Padding-bottom suficiente pra liberar a bottom nav (h-16 = 64px) + safe-area.
+     Use no <main> de telas autenticadas. */
+  .pb-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 5rem);
+  }
+
+  /* Para telas com botão flutuante adicional acima da nav (/hoje, /treino/$sid). */
+  .pb-nav-action {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 9rem);
   }
 }
 

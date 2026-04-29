@@ -53,7 +53,7 @@ function LoginPage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-12">
+    <main className="mx-auto flex min-h-safe max-w-md flex-col justify-center px-6 py-12">
       <div className="mb-8">
         <Logo variant="dark" className="mb-4 h-10" />
         <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo de volta</h1>

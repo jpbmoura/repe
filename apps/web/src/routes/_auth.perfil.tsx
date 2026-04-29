@@ -17,7 +17,7 @@ function PerfilPage() {
   };
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 pb-28">
+    <main className="pb-nav mx-auto max-w-2xl px-4 pt-8">
       <header className="mb-8">
         <h1 className="text-2xl font-semibold">Perfil</h1>
       </header>

@@ -9,7 +9,10 @@ export function OnlineBanner() {
   if (online && mutating === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3">
+    <div
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+    >
       <div
         role="status"
         className={

@@ -61,7 +61,7 @@ function HojePage() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-4 pb-32 pt-6">
+    <main className="pb-nav-action mx-auto max-w-xl px-4 pt-6">
       <header className="mb-6 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-text-secondary text-sm">
@@ -149,11 +149,16 @@ function HojePage() {
       {data?.treino && (
         <div
           className={cn(
-            'fixed inset-x-0 bottom-16 z-20 px-4 pb-2',
+            'pointer-events-none fixed inset-x-0 z-30 px-4',
             'mx-auto max-w-xl',
           )}
-          style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}
+          style={{
+            bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)',
+            paddingLeft: 'max(env(safe-area-inset-left), 1rem)',
+            paddingRight: 'max(env(safe-area-inset-right), 1rem)',
+          }}
         >
+          <div className="pointer-events-auto">
           {data.sessaoAtiva ? (
             <button
               type="button"
@@ -179,6 +184,7 @@ function HojePage() {
               {iniciar.isPending ? 'Iniciando…' : 'Começar treino'}
             </button>
           )}
+          </div>
         </div>
       )}
     </main>

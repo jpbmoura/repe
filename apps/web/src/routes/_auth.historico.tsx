@@ -29,7 +29,7 @@ function HistoricoPage() {
   });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-28 pt-6">
+    <main className="pb-nav mx-auto max-w-2xl px-4 pt-6">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Histórico</h1>
         <p className="text-text-secondary text-sm">

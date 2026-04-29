@@ -45,6 +45,7 @@ iOS Safari/PWA bloqueia cookies cross-site (api e web em domínios diferentes no
 - Desktop/Android usam o cookie HttpOnly (mais seguro). iOS cai no Bearer. Ambos funcionam simultaneamente — Better Auth aceita cookie OU bearer.
 - `signOut` exportado de `auth-client.ts` é wrapper: chama `authClient.signOut()` + limpa o token + `clearSession()`. **Sempre use esse, nunca `authClient.signOut()` direto.**
 - Sessão cacheada via TanStack Query (`apps/web/src/lib/session.ts`, `staleTime: 5min`). **`beforeLoad` deve usar `ensureSession()`, nunca `authClient.getSession()` direto** — senão cada navegação refaz fetch e a UI fica lerda. Login/cadastro chamam `invalidateSession()` após sucesso.
+- **`invalidateSession()` faz `removeQueries`, não `invalidateQueries`**: `ensureQueryData` (usado no `beforeLoad`) retorna cache stale sem refetch. Se só invalidar, o login aparenta travar — a próxima leitura devolve o `null` do cache pre-login e o `_auth` redireciona pra `/login` de novo. Remover força fetch fresh na próxima.
 
 Detecta produção pelo protocolo da `BETTER_AUTH_URL` (não `NODE_ENV`). Se começa com `https://`, ativa `sameSite: 'none'` + `secure: true` + `useSecureCookies`.
 

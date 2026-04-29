@@ -120,7 +120,7 @@ function ProtocoloEditorPage() {
     protocolo.treinos.find((t) => t.id === treinoAtivo) ?? protocolo.treinos[0];
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-28 pt-4">
+    <main className="pb-nav mx-auto max-w-2xl px-4 pt-4">
       <header className="mb-3 flex items-center justify-between">
         <Link
           to="/alunos/$id"

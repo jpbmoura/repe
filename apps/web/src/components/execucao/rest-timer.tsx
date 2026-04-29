@@ -71,11 +71,13 @@ export function RestTimer({ segundosIniciais, onConcluir, onPular }: Props) {
   return (
     <div
       className={cn(
-        'pointer-events-auto fixed inset-x-0 bottom-16 z-40 px-3 pb-2',
+        'pointer-events-auto fixed inset-x-0 z-30 px-3',
         'mx-auto max-w-2xl',
       )}
       style={{
-        paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)',
+        bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)',
+        paddingLeft: 'max(env(safe-area-inset-left), 0.75rem)',
+        paddingRight: 'max(env(safe-area-inset-right), 0.75rem)',
       }}
     >
       <div

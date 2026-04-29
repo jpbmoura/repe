@@ -66,12 +66,14 @@ export function BottomNav({ role }: Props) {
 
   return (
     <nav
-      className="bg-bg-base/80 border-border fixed inset-x-0 bottom-0 z-30 border-t backdrop-blur-md"
+      className="bg-bg-base/90 border-border fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
       }}
     >
-      <ul className="mx-auto flex max-w-2xl">
+      <ul className="mx-auto flex h-16 max-w-2xl">
         {items.map((item) => {
           const Icon = item.icon;
           const ativo = item.matchPrefix
@@ -82,7 +84,7 @@ export function BottomNav({ role }: Props) {
               <Link
                 to={item.to}
                 className={cn(
-                  'flex h-16 flex-col items-center justify-center gap-1 transition active:scale-[0.92]',
+                  'flex h-full flex-col items-center justify-center gap-1 transition active:scale-[0.92]',
                   ativo
                     ? 'text-accent'
                     : 'text-text-tertiary hover:text-text-secondary',
