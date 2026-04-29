@@ -1,11 +1,11 @@
 import { BottomNav } from '@/components/bottom-nav';
 import { OnlineBanner } from '@/components/online-banner';
-import { authClient } from '@/lib/auth-client';
+import { ensureSession } from '@/lib/session';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ location }) => {
-    const { data: session } = await authClient.getSession();
+    const session = await ensureSession();
     if (!session?.user) {
       throw redirect({
         to: '/login',

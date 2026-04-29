@@ -1,4 +1,5 @@
 import { authClient } from '@/lib/auth-client';
+import { ensureSession, invalidateSession } from '@/lib/session';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginInput } from '@repe/shared/schemas';
 import { Logo } from '@repe/ui';
@@ -14,7 +15,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute('/login')({
   validateSearch: searchSchema,
   beforeLoad: async () => {
-    const { data: session } = await authClient.getSession();
+    const session = await ensureSession();
     if (session?.user) {
       throw redirect({ to: '/' });
     }
@@ -47,6 +48,7 @@ function LoginPage() {
       return;
     }
 
+    await invalidateSession();
     navigate({ to: search.redirect ?? '/', replace: true });
   };
 

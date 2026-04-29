@@ -1,5 +1,5 @@
 import { api, ApiError } from '@/lib/api';
-import { authClient } from '@/lib/auth-client';
+import { ensureSession, invalidateSession } from '@/lib/session';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   cadastroAlunoSchema,
@@ -20,7 +20,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute('/cadastro')({
   validateSearch: searchSchema,
   beforeLoad: async () => {
-    const { data: session } = await authClient.getSession();
+    const session = await ensureSession();
     if (session?.user) {
       throw redirect({ to: '/' });
     }
@@ -77,6 +77,7 @@ function CadastroPersonalForm() {
     setSubmitting(true);
     try {
       await api.post('/api/cadastro/personal', values);
+      await invalidateSession();
       navigate({ to: '/alunos', replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
@@ -144,6 +145,7 @@ function CadastroAlunoForm({ codigo }: { codigo: string }) {
     setSubmitting(true);
     try {
       await api.post('/api/cadastro/aluno', values);
+      await invalidateSession();
       navigate({ to: '/hoje', replace: true });
     } catch (err) {
       if (err instanceof ApiError) {

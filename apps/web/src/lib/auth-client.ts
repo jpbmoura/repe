@@ -59,6 +59,8 @@ async function signOutCompleto() {
     await authClient.signOut();
   } finally {
     authStorage.clear();
+    const { clearSession } = await import('./session');
+    clearSession();
   }
 }
 
