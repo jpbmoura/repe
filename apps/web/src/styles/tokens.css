@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  /* Cores - dark (padrão) */
+  --color-bg-base: #0B0B0C;
+  --color-bg-elevated: #161618;
+  --color-bg-subtle: #1F1F22;
+  --color-border: #2A2A2E;
+  --color-border-strong: #3A3A40;
+  --color-text-primary: #F2F0EC;
+  --color-text-secondary: #9B9690;
+  --color-text-tertiary: #5C5853;
+  --color-accent: #FF6B35;
+  --color-accent-hover: #FF8255;
+  --color-accent-pressed: #E55A28;
+  --color-success: #7AB800;
+  --color-warn: #FFB84D;
+  --color-danger: #FF4D5E;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  --radius-chip: 12px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme="light"] {
+    --color-bg-base: #FAF8F4;
+    --color-bg-elevated: #FFFFFF;
+    --color-bg-subtle: #F0EDE7;
+    --color-text-primary: #0B0B0C;
+    --color-text-secondary: #5C5853;
+    --color-accent: #E55A28;
+  }
+}
+
+@layer base {
+  html, body {
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  input, textarea, select {
+    font-family: inherit;
+  }
+
+  /* Mínimo de 44x44 para alvos de toque */
+  button, a[role="button"] {
+    min-height: 44px;
+  }
+
+  .font-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}

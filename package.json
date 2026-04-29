@@ -1,0 +1,24 @@
+{
+  "name": "repe",
+  "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:push": "pnpm --filter @repe/db db:push",
+    "db:generate": "pnpm --filter @repe/db db:generate",
+    "db:migrate": "pnpm --filter @repe/db migrate",
+    "db:seed": "pnpm --filter @repe/db db:seed",
+    "db:studio": "pnpm --filter @repe/db db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3"
+  }
+}

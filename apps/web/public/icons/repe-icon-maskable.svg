@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Repê">
+  <title>Repê</title>
+  <rect width="512" height="512" fill="#0B0B0C"/>
+  <text x="256" y="372" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="320" letter-spacing="-10" fill="#F2F0EC" text-anchor="middle">e</text>
+  <path d="M 195 196 L 256 132 L 317 196" stroke="#FF6B35" stroke-width="29" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

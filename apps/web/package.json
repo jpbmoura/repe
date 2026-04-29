@@ -1,0 +1,52 @@
+{
+  "name": "@repe/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "routes:gen": "tsr generate",
+    "build": "tsr generate && tsc -p tsconfig.app.json --noEmit && vite build",
+    "preview": "vite preview --port 5173",
+    "start": "serve -s dist -l ${PORT:-5173}",
+    "typecheck": "tsr generate && tsc -p tsconfig.app.json --noEmit",
+    "lint": "echo 'no lint configured'"
+  },
+  "dependencies": {
+    "@repe/shared": "workspace:*",
+    "@repe/ui": "workspace:*",
+    "@tanstack/query-async-storage-persister": "^5.62.16",
+    "@tanstack/query-persist-client-core": "^5.62.16",
+    "@tanstack/react-query": "^5.62.16",
+    "@tanstack/react-router": "^1.95.6",
+    "better-auth": "^1.1.4",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "idb-keyval": "^6.2.1",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
+    "@hookform/resolvers": "^5.0.0",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "serve": "^14.2.4",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^4.0.0",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@tanstack/router-cli": "^1.95.6",
+    "@tanstack/router-plugin": "^1.95.6",
+    "@types/node": "^22.10.5",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vite-plugin-pwa": "^0.21.1"
+  }
+}

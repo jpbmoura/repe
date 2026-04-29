@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --version)",
+      "Bash(docker --version)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm --filter @repe/api typecheck)",
+      "Bash(pnpm --filter @repe/web typecheck)",
+      "Bash(pnpm routes:gen)",
+      "Bash(pnpm --filter @repe/shared typecheck)",
+      "Bash(pnpm db:seed)"
+    ]
+  }
+}
