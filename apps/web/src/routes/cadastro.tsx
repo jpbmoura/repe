@@ -8,20 +8,31 @@ import {
   type CadastroPersonalInput,
 } from '@repe/shared/schemas';
 import { Logo } from '@repe/ui';
-import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router';
+import { ChevronLeft } from 'lucide-react';
 import { forwardRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const searchSchema = z.object({
   codigo: z.string().optional(),
+  role: z.enum(['personal', 'aluno']).optional(),
 });
 
 export const Route = createFileRoute('/cadastro')({
   validateSearch: searchSchema,
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     const session = await ensureSession();
     if (session?.user) {
+      throw redirect({ to: '/' });
+    }
+    // Sem nenhum contexto: força usuário a escolher o role primeiro.
+    if (!search.role && !search.codigo) {
       throw redirect({ to: '/' });
     }
   },
@@ -30,31 +41,44 @@ export const Route = createFileRoute('/cadastro')({
 
 function CadastroPage() {
   const search = Route.useSearch();
-  const isAluno = Boolean(search.codigo);
+  // Aluno se: tem código pré-preenchido OU role=aluno explícito.
+  const isAluno = Boolean(search.codigo) || search.role === 'aluno';
+  const backTo = isAluno ? '/login' : '/login';
+  const backSearch = isAluno
+    ? { role: 'aluno' as const }
+    : { role: 'personal' as const };
 
   return (
     <main className="mx-auto flex min-h-safe max-w-md flex-col justify-center px-6 py-12">
       <div className="mb-8">
+        <Link
+          to={backTo}
+          search={backSearch}
+          className="text-text-secondary hover:text-text-primary mb-6 inline-flex items-center gap-1 text-sm"
+        >
+          <ChevronLeft size={16} />
+          Voltar
+        </Link>
         <Logo variant="dark" className="mb-4 h-10" />
         <h1 className="text-2xl font-semibold tracking-tight">
           {isAluno ? 'Cadastro de aluno' : 'Cadastro de personal'}
         </h1>
         <p className="text-text-secondary mt-1 text-sm">
           {isAluno
-            ? 'Preencha seus dados para criar sua conta.'
+            ? 'Use o código que seu personal compartilhou pra criar sua conta.'
             : 'Crie sua conta para começar a montar protocolos.'}
         </p>
       </div>
 
       {isAluno ? (
-        <CadastroAlunoForm codigo={search.codigo!} />
+        <CadastroAlunoForm codigoInicial={search.codigo ?? ''} />
       ) : (
         <CadastroPersonalForm />
       )}
 
       <p className="text-text-secondary mt-8 text-center text-sm">
         Já tem conta?{' '}
-        <Link to="/login" className="text-accent">
+        <Link to="/login" search={backSearch} className="text-accent">
           Entrar
         </Link>
       </p>
@@ -122,7 +146,7 @@ function CadastroPersonalForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed disabled:opacity-60 mt-2 w-full rounded-pill py-3 font-medium transition"
+        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-[0.98] disabled:opacity-60 mt-2 w-full rounded-pill py-3 font-medium transition"
       >
         {submitting ? 'Criando…' : 'Criar conta'}
       </button>
@@ -130,21 +154,30 @@ function CadastroPersonalForm() {
   );
 }
 
-function CadastroAlunoForm({ codigo }: { codigo: string }) {
+function CadastroAlunoForm({ codigoInicial }: { codigoInicial: string }) {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const codigoPreenchido = codigoInicial.length > 0;
 
   const form = useForm<CadastroAlunoInput>({
     resolver: zodResolver(cadastroAlunoSchema),
-    defaultValues: { nome: '', email: '', password: '', codigo: codigo.toUpperCase() },
+    defaultValues: {
+      nome: '',
+      email: '',
+      password: '',
+      codigo: codigoInicial.toUpperCase(),
+    },
   });
 
   const onSubmit = async (values: CadastroAlunoInput) => {
     setServerError(null);
     setSubmitting(true);
     try {
-      await api.post('/api/cadastro/aluno', values);
+      await api.post('/api/cadastro/aluno', {
+        ...values,
+        codigo: values.codigo.toUpperCase(),
+      });
       await invalidateSession();
       navigate({ to: '/hoje', replace: true });
     } catch (err) {
@@ -161,10 +194,20 @@ function CadastroAlunoForm({ codigo }: { codigo: string }) {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <Field
-        label="Código de convite"
-        readOnly
-        value={form.watch('codigo')}
-        className="font-num tracking-widest uppercase"
+        label="Código do convite"
+        autoComplete="off"
+        autoCapitalize="characters"
+        spellCheck={false}
+        maxLength={8}
+        placeholder="ABC12345"
+        readOnly={codigoPreenchido}
+        {...form.register('codigo', {
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+            e.target.value = e.target.value.toUpperCase();
+          },
+        })}
+        className="font-num text-base tracking-widest uppercase"
+        error={form.formState.errors.codigo?.message}
       />
       <Field
         label="Nome"
@@ -196,7 +239,7 @@ function CadastroAlunoForm({ codigo }: { codigo: string }) {
       <button
         type="submit"
         disabled={submitting}
-        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed disabled:opacity-60 mt-2 w-full rounded-pill py-3 font-medium transition"
+        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-[0.98] disabled:opacity-60 mt-2 w-full rounded-pill py-3 font-medium transition"
       >
         {submitting ? 'Criando…' : 'Criar conta'}
       </button>
