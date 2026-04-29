@@ -3,6 +3,7 @@ import { db } from '@repe/db';
 import * as schema from '@repe/db/schema';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { bearer } from 'better-auth/plugins';
 
 const isHttps = env.BETTER_AUTH_URL.startsWith('https://');
 
@@ -48,6 +49,7 @@ export const auth = betterAuth({
       httpOnly: true,
     },
   },
+  plugins: [bearer()],
 });
 
 export type Auth = typeof auth;

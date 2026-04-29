@@ -1,7 +1,6 @@
 import { sessoesApi, sessoesKeys } from '@/lib/api/sessoes';
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_auth/historico')({
   component: HistoricoPage,
@@ -30,18 +29,12 @@ function HistoricoPage() {
   });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 pb-12">
-      <Link
-        to="/hoje"
-        className="text-text-secondary hover:text-text-primary mb-4 inline-flex items-center gap-1 text-sm"
-      >
-        <ChevronLeft size={16} />
-        Voltar
-      </Link>
-
+    <main className="mx-auto max-w-2xl px-4 pb-28 pt-6">
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Histórico</h1>
-        <p className="text-text-secondary text-sm">Suas últimas sessões.</p>
+        <p className="text-text-secondary text-sm">
+          {data ? `${data.sessoes.length} sessões` : 'Carregando…'}
+        </p>
       </header>
 
       {isPending && <p className="text-text-secondary text-sm">Carregando…</p>}
@@ -56,7 +49,7 @@ function HistoricoPage() {
 
       {data && data.sessoes.length > 0 && (
         <ul className="space-y-3">
-          {data.sessoes.map((sessao) => {
+          {data.sessoes.map((sessao, i) => {
             const tonelagem = sessao.series.reduce(
               (acc, s) => acc + Number(s.cargaKg) * s.repsFeitas,
               0,
@@ -67,6 +60,8 @@ function HistoricoPage() {
             return (
               <li
                 key={sessao.id}
+                data-stagger-item
+                style={{ ['--stagger-index' as string]: Math.min(i, 12) }}
                 className="bg-bg-elevated border-border rounded-card border p-4"
               >
                 <div className="flex items-start justify-between gap-3">

@@ -10,6 +10,7 @@ import './styles/tokens.css';
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  defaultViewTransition: true,
   context: {
     queryClient,
     user: undefined,
@@ -33,3 +34,21 @@ createRoot(rootEl).render(
     </QueryClientProvider>
   </StrictMode>,
 );
+
+// Remove splash quando React montar a primeira tela.
+function dismissSplash() {
+  document.body.classList.add('app-mounted');
+  setTimeout(() => {
+    document.body.classList.add('app-splash-done');
+  }, 350);
+}
+
+if (document.readyState === 'complete') {
+  requestAnimationFrame(() => requestAnimationFrame(dismissSplash));
+} else {
+  window.addEventListener(
+    'load',
+    () => requestAnimationFrame(() => requestAnimationFrame(dismissSplash)),
+    { once: true },
+  );
+}

@@ -10,6 +10,8 @@ export type AlunoListItem = {
   createdAt: string;
   codigo: string | null;
   codigoUsadoEm: string | null;
+  treinouHoje: boolean;
+  emAtraso: boolean;
 };
 
 export type AlunoDetalhe = {

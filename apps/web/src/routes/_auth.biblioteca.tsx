@@ -7,8 +7,8 @@ import {
   type ExercicioFilters,
 } from '@/lib/api/exercicios';
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, Plus, Search } from 'lucide-react';
+import { createFileRoute } from '@tanstack/react-router';
+import { Plus, Search } from 'lucide-react';
 import { useDeferredValue, useMemo, useState } from 'react';
 import type {
   EscopoBusca,
@@ -44,19 +44,11 @@ function BibliotecaPage() {
   });
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 pb-28">
-      <Link
-        to="/alunos"
-        className="text-text-secondary hover:text-text-primary mb-4 inline-flex items-center gap-1 text-sm"
-      >
-        <ChevronLeft size={16} />
-        Voltar
-      </Link>
-
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Biblioteca de exercícios</h1>
+        <h1 className="text-2xl font-semibold">Biblioteca</h1>
         <p className="text-text-secondary text-sm">
-          Use para montar protocolos. Crie exercícios privados se precisar.
+          {data ? `${data.exercicios.length} exercícios` : 'Carregando…'}
         </p>
       </header>
 
@@ -125,9 +117,11 @@ function BibliotecaPage() {
 
         {data && data.exercicios.length > 0 && (
           <ul className="space-y-2">
-            {data.exercicios.map((ex) => (
+            {data.exercicios.map((ex, i) => (
               <li
                 key={ex.id}
+                data-stagger-item
+                style={{ ['--stagger-index' as string]: Math.min(i, 12) }}
                 className="bg-bg-elevated border-border rounded-card border p-4"
               >
                 <div className="flex items-start justify-between gap-2">
@@ -153,10 +147,10 @@ function BibliotecaPage() {
       <button
         type="button"
         onClick={() => setDialogOpen(true)}
-        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition"
+        className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-95 fixed bottom-20 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full shadow-lg shadow-black/40 transition"
         aria-label="Criar exercício"
       >
-        <Plus size={24} />
+        <Plus size={24} strokeWidth={2.5} />
       </button>
 
       <CriarExercicioDialog open={dialogOpen} onOpenChange={setDialogOpen} />

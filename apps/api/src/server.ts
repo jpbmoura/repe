@@ -7,6 +7,7 @@ import { pinoHttp } from 'pino-http';
 import { auth } from './auth.js';
 import { alunosRouter } from './routes/alunos.js';
 import { exerciciosRouter } from './routes/exercicios.js';
+import { personalDashboardRouter } from './routes/personal-dashboard.js';
 import { protocolosRouter } from './routes/protocolos.js';
 import { sessoesRouter } from './routes/sessoes.js';
 import { treinosRouter } from './routes/treinos.js';
@@ -32,6 +33,7 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
+    exposedHeaders: ['set-auth-token'],
   }),
 );
 app.use(pinoHttp({ logger }));
@@ -50,6 +52,7 @@ app.use('/api', treinosRouter);
 app.use('/api', exerciciosRouter);
 app.use('/api', sessoesRouter);
 app.use('/api', volumeRouter);
+app.use('/api', personalDashboardRouter);
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error({ err }, 'unhandled_error');

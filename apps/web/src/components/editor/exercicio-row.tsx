@@ -3,9 +3,11 @@ import {
   protocolosApi,
   type ExercicioTreino,
 } from '@/lib/api/protocolos';
+import { cn } from '@repe/ui';
 import { useMutation } from '@tanstack/react-query';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { ChevronDown, GripVertical, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { ExercicioIcone } from './exercicio-icone';
 
 type Props = {
   exercicio: ExercicioTreino;
@@ -14,6 +16,7 @@ type Props = {
 };
 
 export function ExercicioRow({ exercicio, onRemoved, onChanged }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const [series, setSeries] = useState(exercicio.series);
   const [repsAlvo, setRepsAlvo] = useState(exercicio.repsAlvo);
   const [cargaSugeridaKg, setCargaSugeridaKg] = useState(
@@ -65,56 +68,89 @@ export function ExercicioRow({ exercicio, onRemoved, onChanged }: Props) {
     sendUpdate();
   }, [series, repsAlvo, cargaSugeridaKg, descansoSegundos, sendUpdate]);
 
-  return (
-    <div className="bg-bg-elevated border-border rounded-card border p-3">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <GripVertical
-            size={16}
-            className="text-text-tertiary shrink-0 cursor-grab"
-          />
-          <p className="truncate font-medium">{exercicio.exercicio.nome}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => remover.mutate()}
-          disabled={remover.isPending}
-          className="text-text-tertiary hover:text-danger shrink-0 p-1 transition"
-          aria-label="Remover"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
+  const cargaTxt = cargaSugeridaKg === '' ? '—' : `${cargaSugeridaKg}kg`;
+  const descansoTxt = `${descansoSegundos}s`;
+  const summary = `${series}×${repsAlvo} · ${cargaTxt} · ${descansoTxt}`;
 
-      <div className="grid grid-cols-4 gap-2">
-        <NumField
-          label="Séries"
-          value={series}
-          onChange={(v) => setSeries(Math.max(1, Math.round(v)))}
-          min={1}
+  return (
+    <div
+      className={cn(
+        'bg-bg-elevated border-border overflow-hidden rounded-card border transition',
+        expanded && 'border-border-strong',
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="flex w-full items-center gap-2 p-3 text-left"
+      >
+        <GripVertical
+          size={16}
+          className="text-text-tertiary shrink-0 cursor-grab"
+          aria-hidden
         />
-        <TextField
-          label="Reps"
-          value={repsAlvo}
-          onChange={setRepsAlvo}
-          placeholder="8-12"
+        <div className="bg-bg-subtle text-text-secondary flex h-9 w-9 shrink-0 items-center justify-center rounded-chip">
+          <ExercicioIcone equipamento={exercicio.exercicio.equipamento} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium">{exercicio.exercicio.nome}</p>
+          <p className="font-num text-text-secondary mt-0.5 text-xs tabular-nums">
+            {summary}
+          </p>
+        </div>
+        <ChevronDown
+          size={16}
+          className={cn(
+            'text-text-tertiary shrink-0 transition-transform',
+            expanded && 'rotate-180',
+          )}
+          aria-hidden
         />
-        <TextField
-          label="Carga"
-          value={cargaSugeridaKg.toString()}
-          onChange={(v) => setCargaSugeridaKg(v.replace(',', '.'))}
-          placeholder="kg"
-          inputMode="decimal"
-        />
-        <NumField
-          label="Desc."
-          value={descansoSegundos}
-          onChange={(v) => setDescansoSegundos(Math.max(0, Math.round(v)))}
-          min={0}
-          step={5}
-          suffix="s"
-        />
-      </div>
+      </button>
+
+      {expanded && (
+        <div className="border-border space-y-3 border-t p-3">
+          <div className="grid grid-cols-4 gap-2">
+            <NumField
+              label="Séries"
+              value={series}
+              onChange={(v) => setSeries(Math.max(1, Math.round(v)))}
+              min={1}
+            />
+            <TextField
+              label="Reps"
+              value={repsAlvo}
+              onChange={setRepsAlvo}
+              placeholder="8-12"
+            />
+            <TextField
+              label="Carga"
+              value={cargaSugeridaKg.toString()}
+              onChange={(v) => setCargaSugeridaKg(v.replace(',', '.'))}
+              placeholder="kg"
+              inputMode="decimal"
+            />
+            <NumField
+              label="Desc."
+              value={descansoSegundos}
+              onChange={(v) => setDescansoSegundos(Math.max(0, Math.round(v)))}
+              min={0}
+              step={5}
+              suffix="s"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => remover.mutate()}
+            disabled={remover.isPending}
+            className="text-text-tertiary hover:text-danger inline-flex items-center gap-1 text-xs transition"
+          >
+            <Trash2 size={12} />
+            Remover exercício
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { authStorage } from './auth-client';
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export class ApiError extends Error {
@@ -12,14 +14,25 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((init.headers as Record<string, string>) ?? {}),
+  };
+  const token = authStorage.get();
+  if (token && !headers['Authorization']) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...init.headers,
-    },
     ...init,
+    headers,
   });
+
+  const tokenFromResponse = res.headers.get('set-auth-token');
+  if (tokenFromResponse) {
+    authStorage.set(tokenFromResponse);
+  }
 
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as {

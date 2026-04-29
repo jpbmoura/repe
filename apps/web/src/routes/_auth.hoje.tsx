@@ -1,10 +1,11 @@
-import { sessoesApi, sessoesKeys } from '@/lib/api/sessoes';
-import { authClient } from '@/lib/auth-client';
+import { Avatar } from '@/components/avatar';
+import { Chip } from '@/components/chip';
 import { GRUPO_LABELS } from '@/lib/api/exercicios';
-import { Logo } from '@repe/ui';
+import { sessoesApi, sessoesKeys } from '@/lib/api/sessoes';
+import { cn } from '@repe/ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ChevronRight, Dumbbell, History, Play } from 'lucide-react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { ChevronRight, Dumbbell, Play } from 'lucide-react';
 
 export const Route = createFileRoute('/_auth/hoje')({
   component: HojePage,
@@ -19,6 +20,14 @@ const NOMES_DIA = [
   'Sexta',
   'Sábado',
 ];
+
+function saudacao(): string {
+  const h = new Date().getHours();
+  if (h < 5) return 'Boa noite';
+  if (h < 12) return 'Bom dia';
+  if (h < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
 
 function HojePage() {
   const { user } = Route.useRouteContext();
@@ -41,11 +50,6 @@ function HojePage() {
     },
   });
 
-  const handleLogout = async () => {
-    await authClient.signOut();
-    navigate({ to: '/login' });
-  };
-
   const hojeNome = NOMES_DIA[new Date().getDay()] ?? 'Olá';
 
   if (isPending) {
@@ -57,29 +61,15 @@ function HojePage() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-4 py-8 pb-12">
-      <nav className="mb-6 flex items-center justify-between">
-        <Logo variant="dark" className="h-7" />
-        <div className="flex items-center gap-3">
-          <Link
-            to="/historico"
-            className="text-text-secondary hover:text-text-primary"
-            aria-label="Histórico"
-          >
-            <History size={18} />
-          </Link>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-text-secondary hover:text-text-primary text-sm"
-          >
-            Sair
-          </button>
+    <main className="mx-auto max-w-xl px-4 pb-32 pt-6">
+      <header className="mb-6 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-text-secondary text-sm">
+            {saudacao()}, {hojeNome.toLowerCase()}
+          </p>
+          <h1 className="truncate text-2xl font-semibold">{user.nome}</h1>
         </div>
-      </nav>
-      <header className="mb-6">
-        <p className="text-text-secondary text-sm">{hojeNome}, olá</p>
-        <h1 className="text-2xl font-semibold">{user.nome}</h1>
+        <Avatar nome={user.nome} size="lg" variant="neutral" />
       </header>
 
       {!data?.protocolo && (
@@ -101,7 +91,7 @@ function HojePage() {
             descanso.
           </p>
           <p className="text-text-tertiary mt-3 text-xs">
-            Protocolo: {data.protocolo.nome}
+            {data.protocolo.nome}
           </p>
         </div>
       )}
@@ -109,66 +99,87 @@ function HojePage() {
       {data?.treino && (
         <section className="space-y-4">
           <div className="bg-bg-elevated border-border rounded-card border p-5">
-            <p className="text-text-secondary text-xs uppercase tracking-wide">
-              Treino de hoje
+            <p className="text-accent text-xs font-semibold uppercase tracking-wider">
+              Treino {data.treino.letra}
             </p>
-            <h2 className="text-xl font-semibold">
-              {data.treino.letra} · {data.treino.nome}
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight">
+              {data.treino.nome}
             </h2>
-            <p className="text-text-secondary mt-2 text-sm">
-              {data.treino.exercicios.length} exercícios
+            <p className="text-text-secondary mt-2 font-num text-xs tabular-nums">
+              {data.treino.exercicios.length} exercícios ·{' '}
+              {data.treino.exercicios.reduce((acc, ex) => acc + ex.series, 0)}{' '}
+              séries no total
             </p>
           </div>
 
           <ul className="space-y-2">
-            {data.treino.exercicios.map((ex) => (
+            {data.treino.exercicios.map((ex, i) => (
               <li
                 key={ex.id}
+                data-stagger-item
+                style={{ ['--stagger-index' as string]: Math.min(i, 12) }}
                 className="bg-bg-elevated border-border rounded-card border p-3"
               >
-                <p className="font-medium">{ex.exercicio.nome}</p>
-                <p className="text-text-secondary mt-0.5 text-xs">
-                  <span className="font-num">
-                    {ex.series}x{ex.repsAlvo}
-                  </span>
-                  {' · '}
-                  {GRUPO_LABELS[ex.exercicio.grupoMuscularPrimario]}
-                  {' · '}
-                  descanso{' '}
-                  <span className="font-num">{ex.descansoSegundos}s</span>
-                </p>
+                <div className="flex items-start gap-3">
+                  <div className="bg-bg-subtle text-text-secondary font-num flex h-8 w-8 shrink-0 items-center justify-center rounded-chip text-xs font-semibold">
+                    {i + 1}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">
+                      {ex.exercicio.nome}
+                    </p>
+                    <p className="font-num text-text-secondary mt-0.5 text-xs tabular-nums">
+                      {ex.series}×{ex.repsAlvo}
+                      {ex.cargaSugeridaKg ? ` · ${ex.cargaSugeridaKg}kg` : ''} ·
+                      descanso {ex.descansoSegundos}s
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      <Chip variant="neutral" size="sm">
+                        {GRUPO_LABELS[ex.exercicio.grupoMuscularPrimario]}
+                      </Chip>
+                    </div>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
-
-          <div className="sticky bottom-3 mt-4">
-            {data.sessaoAtiva ? (
-              <button
-                type="button"
-                onClick={() =>
-                  navigate({
-                    to: '/treino/$sid',
-                    params: { sid: data.sessaoAtiva!.id },
-                  })
-                }
-                className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed flex w-full items-center justify-center gap-2 rounded-pill py-4 text-base font-semibold transition"
-              >
-                <ChevronRight size={20} />
-                Continuar treino
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => iniciar.mutate()}
-                disabled={iniciar.isPending}
-                className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed disabled:opacity-60 flex w-full items-center justify-center gap-2 rounded-pill py-4 text-base font-semibold transition"
-              >
-                <Play size={20} fill="currentColor" />
-                {iniciar.isPending ? 'Iniciando…' : 'Começar treino'}
-              </button>
-            )}
-          </div>
         </section>
+      )}
+
+      {data?.treino && (
+        <div
+          className={cn(
+            'fixed inset-x-0 bottom-16 z-20 px-4 pb-2',
+            'mx-auto max-w-xl',
+          )}
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}
+        >
+          {data.sessaoAtiva ? (
+            <button
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: '/treino/$sid',
+                  params: { sid: data.sessaoAtiva!.id },
+                })
+              }
+              className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-[0.98] flex w-full items-center justify-center gap-2 rounded-pill py-4 text-base font-semibold shadow-lg shadow-black/40 transition"
+            >
+              <ChevronRight size={20} />
+              Continuar treino
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => iniciar.mutate()}
+              disabled={iniciar.isPending}
+              className="bg-accent text-bg-base hover:bg-accent-hover active:bg-accent-pressed active:scale-[0.98] disabled:opacity-60 flex w-full items-center justify-center gap-2 rounded-pill py-4 text-base font-semibold shadow-lg shadow-black/40 transition"
+            >
+              <Play size={18} fill="currentColor" />
+              {iniciar.isPending ? 'Iniciando…' : 'Começar treino'}
+            </button>
+          )}
+        </div>
       )}
     </main>
   );

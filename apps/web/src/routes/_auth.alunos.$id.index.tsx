@@ -1,10 +1,11 @@
+import { Avatar } from '@/components/avatar';
 import { CodigoConvite } from '@/components/codigo-convite';
 import { CriarProtocoloDialog } from '@/components/criar-protocolo-dialog';
+import { StatusBadge } from '@/components/status-badge';
 import { alunosApi, alunosKeys } from '@/lib/api/alunos';
 import {
   protocolosApi,
   protocolosKeys,
-  STATUS_LABELS,
   type Protocolo,
 } from '@/lib/api/protocolos';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +16,13 @@ import { useState } from 'react';
 export const Route = createFileRoute('/_auth/alunos/$id/')({
   component: AlunoDetalhePage,
 });
+
+function formatDataCurta(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+  });
+}
 
 function AlunoDetalhePage() {
   const { id } = Route.useParams();
@@ -65,18 +73,26 @@ function AlunoDetalhePage() {
   const cadastrado = Boolean(aluno.userId);
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 pb-28">
+    <main className="mx-auto max-w-2xl px-4 pb-28 pt-4">
       <Link
         to="/alunos"
-        className="text-text-secondary hover:text-text-primary mb-4 inline-flex items-center gap-1 text-sm"
+        className="text-text-secondary hover:text-text-primary mb-3 inline-flex items-center gap-1 text-sm"
       >
         <ChevronLeft size={16} />
-        Voltar
+        Alunos
       </Link>
 
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold">{aluno.nome}</h1>
-        <p className="text-text-secondary text-sm">{aluno.email}</p>
+      <header className="mb-6 flex items-center gap-3">
+        <Avatar nome={aluno.nome} size="lg" />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-semibold">{aluno.nome}</h1>
+          <p className="text-text-secondary truncate text-sm">{aluno.email}</p>
+        </div>
+        {cadastrado ? (
+          <StatusBadge status="ativo" />
+        ) : (
+          <StatusBadge status="pendente" />
+        )}
       </header>
 
       {!cadastrado && codigoAtual && (
@@ -94,24 +110,17 @@ function AlunoDetalhePage() {
         </section>
       )}
 
-      {cadastrado && (
-        <section className="bg-bg-elevated border-border mb-6 rounded-card border p-4">
-          <p className="text-success text-sm font-medium">Aluno cadastrado</p>
-          <p className="text-text-secondary mt-1 text-xs">
-            O aluno já criou conta e está acessando o app.
-          </p>
-        </section>
-      )}
-
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-medium">Protocolos</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-text-secondary text-xs font-semibold uppercase tracking-wide">
+            Protocolos
+          </h2>
           <button
             type="button"
             onClick={() => setDialogOpen(true)}
-            className="bg-accent text-bg-base hover:bg-accent-hover inline-flex items-center gap-1 rounded-pill px-3 py-1.5 text-sm font-medium transition"
+            className="bg-accent text-bg-base hover:bg-accent-hover inline-flex items-center gap-1 rounded-pill px-3 py-1.5 text-xs font-semibold transition"
           >
-            <Plus size={14} />
+            <Plus size={12} strokeWidth={2.5} />
             Novo
           </button>
         </div>
@@ -141,7 +150,7 @@ function AlunoDetalhePage() {
         <section className="bg-bg-elevated border-border mt-6 space-y-3 rounded-card border p-4">
           {aluno.objetivo && (
             <div>
-              <h3 className="text-text-secondary mb-1 text-xs font-medium uppercase tracking-wide">
+              <h3 className="text-text-secondary mb-1 text-xs font-semibold uppercase tracking-wide">
                 Objetivo
               </h3>
               <p className="text-sm">{aluno.objetivo}</p>
@@ -149,7 +158,7 @@ function AlunoDetalhePage() {
           )}
           {aluno.observacoes && (
             <div>
-              <h3 className="text-text-secondary mb-1 text-xs font-medium uppercase tracking-wide">
+              <h3 className="text-text-secondary mb-1 text-xs font-semibold uppercase tracking-wide">
                 Observações
               </h3>
               <p className="whitespace-pre-wrap text-sm">{aluno.observacoes}</p>
@@ -174,30 +183,28 @@ function ProtocoloRow({
   alunoId: string;
   protocolo: Protocolo;
 }) {
-  const statusColor = {
-    ativo: 'bg-success/15 text-success',
-    rascunho: 'bg-warn/15 text-warn',
-    arquivado: 'bg-bg-subtle text-text-tertiary',
-  }[protocolo.status];
-
   return (
     <li>
       <Link
         to="/alunos/$id/protocolos/$pid"
         params={{ id: alunoId, pid: protocolo.id }}
-        className="bg-bg-elevated border-border hover:border-border-strong flex items-center justify-between rounded-card border p-4 transition"
+        className="bg-bg-elevated border-border hover:border-border-strong flex items-center gap-3 rounded-card border p-4 transition"
       >
-        <div className="min-w-0">
+        <div className="bg-bg-subtle flex h-10 w-10 shrink-0 items-center justify-center rounded-chip text-sm font-semibold">
+          {protocolo.divisao === 'full_body'
+            ? 'FB'
+            : protocolo.divisao === 'custom'
+              ? '—'
+              : protocolo.divisao}
+        </div>
+        <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{protocolo.nome}</p>
           <p className="text-text-secondary text-xs">
-            Início: {new Date(protocolo.dataInicio).toLocaleDateString('pt-BR')}
-            {' · '}
-            {protocolo.divisao}
+            Início {formatDataCurta(protocolo.dataInicio)}
+            {protocolo.dataFim && ` · Fim ${formatDataCurta(protocolo.dataFim)}`}
           </p>
         </div>
-        <span className={`shrink-0 rounded-pill px-3 py-1 text-xs ${statusColor}`}>
-          {STATUS_LABELS[protocolo.status]}
-        </span>
+        <StatusBadge status={protocolo.status} size="sm" />
       </Link>
     </li>
   );

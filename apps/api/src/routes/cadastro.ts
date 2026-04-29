@@ -47,8 +47,11 @@ cadastroRouter.post(
       }
 
       result.headers.forEach((value, key) => {
-        if (key.toLowerCase() === 'set-cookie') {
+        const k = key.toLowerCase();
+        if (k === 'set-cookie') {
           res.append('Set-Cookie', value);
+        } else if (k === 'set-auth-token') {
+          res.setHeader('set-auth-token', value);
         }
       });
       res.status(result.status).type('application/json').send(await result.text());
@@ -131,8 +134,11 @@ cadastroRouter.post(
       });
 
       result.headers.forEach((value, key) => {
-        if (key.toLowerCase() === 'set-cookie') {
+        const k = key.toLowerCase();
+        if (k === 'set-cookie') {
           res.append('Set-Cookie', value);
+        } else if (k === 'set-auth-token') {
+          res.setHeader('set-auth-token', value);
         }
       });
       res.status(result.status).type('application/json').send(await result.text());

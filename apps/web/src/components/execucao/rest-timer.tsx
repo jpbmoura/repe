@@ -11,7 +11,7 @@ type Props = {
 function formatTempo(s: number): string {
   const min = Math.floor(s / 60);
   const seg = s % 60;
-  return `${min}:${seg.toString().padStart(2, '0')}`;
+  return `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
 }
 
 function tentarVibrar(pattern: number | number[]) {
@@ -38,7 +38,11 @@ export function RestTimer({ segundosIniciais, onConcluir, onPular }: Props) {
   useEffect(() => {
     const acquire = async () => {
       try {
-        const wl = await (navigator as { wakeLock?: { request: (kind: string) => Promise<WakeLockSentinelLike> } }).wakeLock?.request('screen');
+        const wl = await (
+          navigator as {
+            wakeLock?: { request: (kind: string) => Promise<WakeLockSentinelLike> };
+          }
+        ).wakeLock?.request('screen');
         if (wl) wakeLockRef.current = wl;
       } catch {
         // ignore
@@ -67,46 +71,51 @@ export function RestTimer({ segundosIniciais, onConcluir, onPular }: Props) {
   return (
     <div
       className={cn(
-        'pointer-events-auto fixed inset-x-0 bottom-0 z-40 px-3 pb-3',
+        'pointer-events-auto fixed inset-x-0 bottom-16 z-40 px-3 pb-2',
         'mx-auto max-w-2xl',
       )}
+      style={{
+        paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)',
+      }}
     >
-      <div className="bg-bg-elevated border-border rounded-card border-2 p-4 shadow-xl">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-text-secondary text-xs">
-              {encerrado ? 'Descanso concluído' : 'Descansando'}
-            </p>
-            <p
-              className={cn(
-                'font-num text-3xl font-semibold tabular-nums',
-                encerrado ? 'text-success' : 'text-accent',
-              )}
-            >
-              {formatTempo(Math.max(0, restante))}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setRestante((s) => s + 15)}
-              className="bg-bg-subtle border-border inline-flex items-center gap-1 rounded-pill border px-3 py-2 text-sm font-medium"
-            >
-              <Plus size={14} />
-              15s
-            </button>
-            <button
-              type="button"
-              onClick={onPular}
-              className="bg-bg-subtle border-border inline-flex items-center gap-1 rounded-pill border px-3 py-2 text-sm font-medium"
-              aria-label="Pular"
-            >
-              <X size={14} />
-              Pular
-            </button>
-          </div>
+      <div
+        data-anim="slide-up"
+        className={cn(
+          'border-border-strong flex items-center gap-3 rounded-card border-2 p-4 shadow-xl transition-colors duration-200',
+          encerrado ? 'bg-success/15' : 'bg-bg-elevated',
+        )}
+      >
+        <div className="flex flex-1 items-baseline gap-3">
+          <span className="text-text-secondary text-[10px] font-semibold uppercase tracking-wider">
+            {encerrado ? 'Pronto' : 'Descanso'}
+          </span>
+          <span
+            className={cn(
+              'font-num text-4xl font-bold tabular-nums leading-none',
+              encerrado ? 'text-success' : 'text-accent',
+            )}
+          >
+            {formatTempo(Math.max(0, restante))}
+          </span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setRestante((s) => s + 15)}
+          className="bg-bg-subtle border-border inline-flex items-center gap-1 rounded-pill border px-3 py-2 text-xs font-medium transition active:scale-95"
+        >
+          <Plus size={12} strokeWidth={2.5} />
+          15s
+        </button>
+        <button
+          type="button"
+          onClick={onPular}
+          className="bg-accent text-bg-base hover:bg-accent-hover inline-flex items-center gap-1 rounded-pill px-3 py-2 text-xs font-semibold transition active:scale-95"
+          aria-label="Pular descanso"
+        >
+          <X size={12} strokeWidth={2.5} />
+          Pular
+        </button>
       </div>
     </div>
   );

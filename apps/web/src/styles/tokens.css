@@ -68,3 +68,112 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* ============================================================
+   Animações
+   ============================================================ */
+
+/* View Transitions API — cross-fade sutil entre rotas.
+   Sem suporte (iOS Safari atual): cai pra navegação imediata. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Lista com stagger fade-in. Itens com data-stagger-index entram
+   sequencialmente. Suprime durante view transition pra evitar
+   "double animation". */
+@keyframes list-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-stagger-item] {
+  animation: list-item-in 240ms ease-out backwards;
+  animation-delay: calc(var(--stagger-index, 0) * 25ms);
+}
+
+::view-transition-group([data-stagger-item]) {
+  animation: none;
+}
+
+/* Slide-up entry pro RestTimer */
+@keyframes slide-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-anim="slide-up"] {
+  animation: slide-up-in 220ms ease-out;
+}
+
+/* Pop sutil pro check ao confirmar série */
+@keyframes check-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Respeita preferência de reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
