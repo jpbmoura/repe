@@ -19,6 +19,7 @@ if (!tsxBin) {
   process.exit(1);
 }
 
+const migrationsDir = path.join(monorepoRoot, 'packages/db/migrations');
 const migrateScript = path.join(monorepoRoot, 'packages/db/src/migrate.ts');
 const serverScript = path.join(monorepoRoot, 'apps/api/src/server.ts');
 
@@ -37,7 +38,20 @@ function run(args) {
   });
 }
 
-console.log('[start] aplicando migrations…');
-await run([migrateScript]);
+if (existsSync(path.join(migrationsDir, 'meta', '_journal.json'))) {
+  console.log('[start] aplicando migrations…');
+  await run([migrateScript]);
+} else {
+  console.log(
+    '[start] nenhuma migration encontrada em packages/db/migrations — pulando.',
+  );
+  console.log(
+    '[start] aplique o schema com `pnpm db:push` apontando para o DATABASE_URL de produção,',
+  );
+  console.log(
+    '[start] ou gere migrations com `pnpm db:generate` e faça commit.',
+  );
+}
+
 console.log('[start] iniciando servidor…');
 await run([serverScript]);
