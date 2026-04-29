@@ -4,6 +4,8 @@ import * as schema from '@repe/db/schema';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 
+const isProd = env.NODE_ENV === 'production';
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -38,14 +40,14 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [env.CORS_ORIGIN],
-  ...(env.NODE_ENV === 'production' && {
-    advanced: {
-      defaultCookieAttributes: {
-        sameSite: 'none',
-        secure: true,
-      },
+  advanced: {
+    useSecureCookies: isProd,
+    defaultCookieAttributes: {
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
+      httpOnly: true,
     },
-  }),
+  },
 });
 
 export type Auth = typeof auth;
