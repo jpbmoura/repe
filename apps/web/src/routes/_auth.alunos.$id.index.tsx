@@ -1,5 +1,5 @@
 import { Avatar } from '@/components/avatar';
-import { CodigoConvite } from '@/components/codigo-convite';
+import { CompartilharConviteDialog } from '@/components/compartilhar-convite-dialog';
 import { CriarProtocoloDialog } from '@/components/criar-protocolo-dialog';
 import { StatusBadge } from '@/components/status-badge';
 import { alunosApi, alunosKeys } from '@/lib/api/alunos';
@@ -8,9 +8,9 @@ import {
   protocolosKeys,
   type Protocolo,
 } from '@/lib/api/protocolos';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, Plus, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Plus, Share2 } from 'lucide-react';
 import { useState } from 'react';
 
 export const Route = createFileRoute('/_auth/alunos/$id/')({
@@ -26,9 +26,8 @@ function formatDataCurta(iso: string): string {
 
 function AlunoDetalhePage() {
   const { id } = Route.useParams();
-  const queryClient = useQueryClient();
-  const [codigoOverride, setCodigoOverride] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [conviteOpen, setConviteOpen] = useState(false);
+  const [protocoloOpen, setProtocoloOpen] = useState(false);
 
   const { data, isPending, error } = useQuery({
     queryKey: alunosKeys.detalhe(id),
@@ -38,15 +37,6 @@ function AlunoDetalhePage() {
   const protocolosQuery = useQuery({
     queryKey: protocolosKeys.doAluno(id),
     queryFn: () => protocolosApi.listar(id),
-  });
-
-  const regenerar = useMutation({
-    mutationFn: () => alunosApi.regenerarCodigo(id),
-    onSuccess: (response) => {
-      setCodigoOverride(response.codigo);
-      queryClient.invalidateQueries({ queryKey: alunosKeys.detalhe(id) });
-      queryClient.invalidateQueries({ queryKey: alunosKeys.lista() });
-    },
   });
 
   if (isPending) {
@@ -69,7 +59,7 @@ function AlunoDetalhePage() {
   }
 
   const { aluno } = data;
-  const codigoAtual = codigoOverride ?? aluno.convite?.codigo ?? null;
+  const codigoAtual = aluno.convite?.codigo ?? null;
   const cadastrado = Boolean(aluno.userId);
 
   return (
@@ -88,25 +78,30 @@ function AlunoDetalhePage() {
           <h1 className="truncate text-2xl font-semibold">{aluno.nome}</h1>
           <p className="text-text-secondary truncate text-sm">{aluno.email}</p>
         </div>
-        {cadastrado ? (
-          <StatusBadge status="ativo" />
-        ) : (
-          <StatusBadge status="pendente" />
-        )}
+        <button
+          type="button"
+          onClick={() => setConviteOpen(true)}
+          className="bg-bg-subtle border-border text-text-secondary hover:text-text-primary hover:border-border-strong active:scale-95 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition"
+          aria-label="Compartilhar convite"
+          title="Compartilhar convite"
+        >
+          <Share2 size={16} />
+        </button>
       </header>
 
       {!cadastrado && codigoAtual && (
-        <section className="mb-6">
-          <CodigoConvite codigo={codigoAtual} nomeAluno={aluno.nome} />
-          <button
-            type="button"
-            onClick={() => regenerar.mutate()}
-            disabled={regenerar.isPending}
-            className="text-text-secondary hover:text-text-primary mt-3 inline-flex items-center gap-2 text-sm"
-          >
-            <RefreshCw size={14} />
-            {regenerar.isPending ? 'Gerando novo…' : 'Gerar novo código'}
-          </button>
+        <section className="border-warn/30 bg-warn/5 mb-6 rounded-card border p-3">
+          <div className="flex items-start gap-3">
+            <StatusBadge status="pendente" size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">Aluno ainda não criou conta</p>
+              <p className="text-text-secondary mt-0.5 text-xs">
+                Toque no botão{' '}
+                <Share2 size={11} className="inline" aria-hidden /> acima para
+                ver o código e compartilhar.
+              </p>
+            </div>
+          </div>
         </section>
       )}
 
@@ -117,8 +112,8 @@ function AlunoDetalhePage() {
           </h2>
           <button
             type="button"
-            onClick={() => setDialogOpen(true)}
-            className="bg-accent text-bg-base hover:bg-accent-hover inline-flex items-center gap-1 rounded-pill px-3 py-1.5 text-xs font-semibold transition"
+            onClick={() => setProtocoloOpen(true)}
+            className="bg-accent text-bg-base hover:bg-accent-hover active:scale-95 inline-flex items-center gap-1 rounded-pill px-3 py-1.5 text-xs font-semibold transition"
           >
             <Plus size={12} strokeWidth={2.5} />
             Novo
@@ -167,10 +162,19 @@ function AlunoDetalhePage() {
         </section>
       )}
 
+      <CompartilharConviteDialog
+        alunoId={id}
+        alunoNome={aluno.nome}
+        codigoInicial={codigoAtual}
+        cadastrado={cadastrado}
+        open={conviteOpen}
+        onOpenChange={setConviteOpen}
+      />
+
       <CriarProtocoloDialog
         alunoId={id}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        open={protocoloOpen}
+        onOpenChange={setProtocoloOpen}
       />
     </main>
   );
@@ -188,7 +192,7 @@ function ProtocoloRow({
       <Link
         to="/alunos/$id/protocolos/$pid"
         params={{ id: alunoId, pid: protocolo.id }}
-        className="bg-bg-elevated border-border hover:border-border-strong flex items-center gap-3 rounded-card border p-4 transition"
+        className="bg-bg-elevated border-border hover:border-border-strong active:scale-[0.99] flex items-center gap-3 rounded-card border p-4 transition"
       >
         <div className="bg-bg-subtle flex h-10 w-10 shrink-0 items-center justify-center rounded-chip text-sm font-semibold">
           {protocolo.divisao === 'full_body'
