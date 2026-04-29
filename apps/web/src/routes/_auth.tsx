@@ -1,4 +1,5 @@
 import { BottomNav } from '@/components/bottom-nav';
+import { InstallPwaPrompt } from '@/components/install-pwa-prompt';
 import { OnlineBanner } from '@/components/online-banner';
 import { ensureSession } from '@/lib/session';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
@@ -33,6 +34,7 @@ function AuthLayout() {
       <OnlineBanner />
       <Outlet />
       <BottomNav role={user.role} />
+      <InstallPwaPrompt />
     </>
   );
 }

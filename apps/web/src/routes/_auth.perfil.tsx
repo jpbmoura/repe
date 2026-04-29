@@ -1,7 +1,10 @@
 import { Avatar } from '@/components/avatar';
+import { InstallPwaPrompt } from '@/components/install-pwa-prompt';
+import { usePwaInstall } from '@/hooks/use-pwa-install';
 import { signOut } from '@/lib/auth-client';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { LogOut } from 'lucide-react';
+import { CheckCircle2, Download, LogOut } from 'lucide-react';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_auth/perfil')({
   component: PerfilPage,
@@ -10,6 +13,8 @@ export const Route = createFileRoute('/_auth/perfil')({
 function PerfilPage() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
+  const { standalone, installable } = usePwaInstall();
+  const [installOpen, setInstallOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -33,6 +38,37 @@ function PerfilPage() {
         </div>
       </section>
 
+      <section className="bg-bg-elevated border-border mb-4 rounded-card border p-4">
+        <h2 className="mb-3 font-medium">App</h2>
+        {standalone ? (
+          <div className="text-success flex items-center gap-2 text-sm">
+            <CheckCircle2 size={16} />
+            <span>App instalado nesse dispositivo.</span>
+          </div>
+        ) : installable ? (
+          <button
+            type="button"
+            onClick={() => setInstallOpen(true)}
+            className="bg-bg-subtle border-border hover:border-border-strong active:scale-[0.99] flex w-full items-center gap-3 rounded-card border p-3 text-left transition"
+          >
+            <div className="bg-accent/15 text-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-chip">
+              <Download size={16} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">Instalar como app</p>
+              <p className="text-text-secondary text-xs">
+                Abre direto, sem barra do navegador, e funciona offline.
+              </p>
+            </div>
+          </button>
+        ) : (
+          <p className="text-text-secondary text-sm">
+            Para instalar, abra esse link no Chrome (Android), Safari (iOS) ou
+            Edge (Desktop).
+          </p>
+        )}
+      </section>
+
       <section className="bg-bg-elevated border-border rounded-card border p-4">
         <h2 className="mb-2 font-medium">Em breve</h2>
         <p className="text-text-secondary text-sm">
@@ -48,6 +84,11 @@ function PerfilPage() {
         <LogOut size={14} />
         Sair da conta
       </button>
+
+      <InstallPwaPrompt
+        manualOpen={installOpen}
+        onManualClose={() => setInstallOpen(false)}
+      />
     </main>
   );
 }
